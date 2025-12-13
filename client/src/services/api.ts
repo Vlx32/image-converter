@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://image-converter-production-15fc.up.railway.app/api';
 
 export const convertImage = async (
   file: File,
