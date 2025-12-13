@@ -103,6 +103,7 @@ function App() {
             <FormatSelector 
               selectedFormat={format}
               onFormatChange={setFormat}
+               disabled={loading} 
             />
 
             <button
