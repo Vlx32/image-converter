@@ -4,15 +4,13 @@ import imageService from '../services/imageService';
 
 const router = express.Router();
 
-// Увеличиваем лимит до 50MB
 const upload = multer({ 
   dest: 'uploads/',
   limits: { 
-    fileSize: 50 * 1024 * 1024  // 50MB
+    fileSize: 50 * 1024 * 1024
   }
 });
 
-// POST /api/convert/image
 router.post('/image', upload.single('file'), async (req: Request, res: Response) => {
   try {
     const file = req.file;

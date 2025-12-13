@@ -10,11 +10,11 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ 
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB для PDF
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp|bmp|pdf/; // ДОБАВИЛИ PDF
+    const allowedTypes = /jpeg|jpg|png|gif|webp|bmp|pdf/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/pdf'; // ДОБАВИЛИ MIME TYPE
+    const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/pdf';
     
     if (extname && mimetype) {
       cb(null, true);
