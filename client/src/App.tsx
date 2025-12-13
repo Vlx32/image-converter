@@ -54,7 +54,6 @@ function App() {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          disabled={isConverting}
         />
       </div>
 
@@ -66,7 +65,6 @@ function App() {
               id="format"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              disabled={isConverting}
             >
               <option value="jpeg">JPEG</option>
               <option value="png">PNG</option>
@@ -85,7 +83,6 @@ function App() {
               max="100"
               value={quality}
               onChange={(e) => setQuality(Number(e.target.value))}
-              disabled={isConverting}
             />
           </div>
 
