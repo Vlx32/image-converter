@@ -1,138 +1,122 @@
 import { useState } from 'react';
-import { FileUploader } from './components/converter/FileUploader';
-import { FormatSelector } from './components/converter/FormatSelector';
-import { AdBanner } from './components/AdBanner';
-import { PrivacyPolicy } from './components/PrivacyPolicy';
-import type { ImageFormat } from './types/conversion';
 import { convertImage } from './services/api';
 import './App.css';
 
 function App() {
-  const [files, setFiles] = useState<File[]>([]);
-  const [format, setFormat] = useState<ImageFormat>('jpeg');
-  const [loading, setLoading] = useState(false);
-  const [showAd, setShowAd] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [format, setFormat] = useState('jpeg');
+  const [quality, setQuality] = useState(80);
+  const [isConverting, setIsConverting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
 
-  const qualityMap: Record<ImageFormat, number> = {
-    jpeg: 75,
-    webp: 60,
-    avif: 55
-  };
-
-  const handleConvert = async () => {
-    if (files.length === 0) return;
-
-    setLoading(true);
-    setShowAd(true);
-    setError(null);
-
-    try {
-      const quality = qualityMap[format];
-      const blob = await convertImage(files[0], format, quality);
-      
-      const originalName = files[0].name.substring(0, files[0].name.lastIndexOf('.'));
-      const filename = originalName ? `${originalName}.${format}` : `converted.${format}`;
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-
-      setFiles([]);
-
-    } catch (err) {
-      setError('Ошибка конвертации. Попробуйте еще раз.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setTimeout(() => setShowAd(false), 1000);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      setConvertedUrl(null);
     }
   };
 
-  if (showPrivacy) {
-    return (
-      <div className="app-container">
-        <div className="app-main" style={{ maxWidth: '800px' }}>
-          <button 
-            onClick={() => setShowPrivacy(false)}
-            className="back-button"
-          >
-            ← Назад
-          </button>
-          <PrivacyPolicy />
-        </div>
-      </div>
-    );
-  }
+  const handleConvert = async () => {
+    if (!file) return;
+
+    setIsConverting(true);
+    try {
+      const blob = await convertImage(file, format, quality);
+      const url = URL.createObjectURL(blob);
+      setConvertedUrl(url);
+    } catch (error) {
+      console.error('Conversion error:', error);
+      alert('Failed to convert image. Please try again.');
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!convertedUrl) return;
+
+    const link = document.createElement('a');
+    link.href = convertedUrl;
+    link.download = `converted.${format}`;
+    link.click();
+  };
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>🖼️ Конвертер изображений</h1>
-        <p className="subtitle">
-          Быстрая конвертация и сжатие изображений
-        </p>
-        <p className="privacy-notice">
-          🔒 Ваши файлы не сохраняются на сервере
-        </p>
-      </header>
-
-      <main className="app-main">
-        <FileUploader 
-          onFileSelect={setFiles}
-          acceptFiles="image/*"
-          multiple={false}
+    <div className="container">
+      <h1>Image Converter</h1>
+      
+      <div className="upload-section">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={isConverting}
         />
+      </div>
 
-        {files.length > 0 && (
-          <div className="file-info">
-            <h3>Выбран файл:</h3>
-            <p className="file-name">{files[0].name}</p>
-            <p className="file-size">
-              {(files[0].size / 1024 / 1024).toFixed(2)} МБ
-            </p>
-          </div>
-        )}
-
-        {files.length > 0 && (
-          <>
-            <FormatSelector 
-              selectedFormat={format}
-              onFormatChange={setFormat}
-            />
-
-            <button
-              className={`convert-button ${loading ? 'loading' : ''}`}
-              onClick={handleConvert}
-              disabled={loading}
+      {file && (
+        <div className="controls">
+          <div className="form-group">
+            <label htmlFor="format">Output Format:</label>
+            <select
+              id="format"
+              value={format}
+              onChange={(e) => setFormat(e.target.value)}
+              disabled={isConverting}
             >
-              {loading ? '⏳ Конвертирую...' : '✨ Конвертировать'}
-            </button>
-          </>
-        )}
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
 
-        {showAd && <AdBanner />}
+          <div className="form-group">
+            <label htmlFor="quality">
+              Quality: {quality}%
+            </label>
+            <input
+              type="range"
+              id="quality"
+              min="1"
+              max="100"
+              value={quality}
+              onChange={(e) => setQuality(Number(e.target.value))}
+              disabled={isConverting}
+            />
+          </div>
 
-        {error && (
-          <div className="error-message">
-            ❌ {error}
+          <button
+            onClick={handleConvert}
+            disabled={isConverting}
+            className="convert-btn"
+          >
+            {isConverting ? 'Converting...' : 'Convert Image'}
+          </button>
+        </div>
+      )}
+
+      <div className="preview-section">
+        {previewUrl && (
+          <div className="preview-box">
+            <h3>Original</h3>
+            <img src={previewUrl} alt="Original" />
           </div>
         )}
-      </main>
 
-      <footer className="app-footer">
-        <button 
-          onClick={() => setShowPrivacy(true)}
-          className="footer-link"
-        >
-          Политика конфиденциальности
-        </button>
-        <p className="footer-text">© 2025 Image Converter</p>
-      </footer>
+        {convertedUrl && (
+          <div className="preview-box">
+            <h3>Converted</h3>
+            <img src={convertedUrl} alt="Converted" />
+            <button onClick={handleDownload} className="download-btn">
+              Download
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
