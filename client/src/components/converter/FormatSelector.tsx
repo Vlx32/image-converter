@@ -4,9 +4,14 @@ import './FormatSelector.css';
 interface FormatSelectorProps {
   selectedFormat: ImageFormat;
   onFormatChange: (format: ImageFormat) => void;
+  disabled?: boolean; 
 }
 
-export const FormatSelector = ({ selectedFormat, onFormatChange }: FormatSelectorProps) => {
+export const FormatSelector = ({ 
+  selectedFormat, 
+  onFormatChange,
+  disabled = false
+}: FormatSelectorProps) => {
   const formats: { value: ImageFormat; label: string; desc: string }[] = [
     { value: 'jpeg', label: 'JPEG', desc: 'Универсальный' },
     { value: 'webp', label: 'WebP', desc: 'Малый размер' },
@@ -22,6 +27,7 @@ export const FormatSelector = ({ selectedFormat, onFormatChange }: FormatSelecto
             key={value}
             onClick={() => onFormatChange(value)}
             className={`format-button ${selectedFormat === value ? 'active' : ''}`}
+            disabled={disabled}
           >
             <span className="format-label">{label}</span>
             <span className="format-desc">{desc}</span>

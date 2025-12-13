@@ -65,3 +65,13 @@
     width: 100%;
   }
 }
+
+.format-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.format-button:disabled:hover {
+  box-shadow: none;
+}
