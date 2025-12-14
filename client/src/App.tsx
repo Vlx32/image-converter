@@ -22,36 +22,36 @@ function App() {
   };
 
   const handleConvert = async () => {
-    if (files.length === 0) return;
+  if (files.length === 0) return;
 
-    setLoading(true);
+  setLoading(true);
+  setError(null);
+
+  try {
+    const quality = qualityMap[format];
+    const blob = await convertImage(files[0], format, quality);
+    
+    const originalName = files[0].name.substring(0, files[0].name.lastIndexOf('.'));
+    const filename = originalName ? `${originalName}.${format}` : `converted.${format}`;
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(url);
+
+    setFiles([]);
     setShowAd(true);
-    setError(null);
 
-    try {
-      const quality = qualityMap[format];
-      const blob = await convertImage(files[0], format, quality);
-      
-      const originalName = files[0].name.substring(0, files[0].name.lastIndexOf('.'));
-      const filename = originalName ? `${originalName}.${format}` : `converted.${format}`;
+  } catch (err) {
+    setError('Ошибка конвертации. Попробуйте еще раз.');
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-
-      setFiles([]);
-
-    } catch (err) {
-      setError('Ошибка конвертации. Попробуйте еще раз.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setTimeout(() => setShowAd(false), 1000);
-    }
-  };
 
   if (showPrivacy) {
     return (
@@ -116,7 +116,7 @@ function App() {
           </>
         )}
 
-        {showAd && <AdBanner />}
+       {!loading && showAd && <AdBanner />}
 
         {error && (
           <div className="error-message">
