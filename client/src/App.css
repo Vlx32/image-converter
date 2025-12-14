@@ -252,3 +252,46 @@ select:disabled {
     font-size: 1rem;
   }
 }
+
+.content-section {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.content-section h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.content-section h3 {
+  color: #555;
+  font-size: 1.2rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.content-section p {
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+.content-section strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.clickable-title {
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.clickable-title:hover {
+  color: #667eea;
+}
